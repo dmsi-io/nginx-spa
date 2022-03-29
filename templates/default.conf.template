@@ -1,0 +1,31 @@
+server {
+    listen       80;
+    listen  [::]:80;
+
+    root /usr/share/nginx/html;
+    index index.html;
+
+    server_name localhost;
+
+    # allows "hosted at" applications to correctly retrieve files
+    rewrite ^/${HOSTED_AT_BASE_URL}/(.*) /$1 break;
+
+    location ~* \.(?:manifest|appcache|html?|xml|json)$ {
+        expires -1;
+    }
+
+    location ~* \.(?:css|js)$ {
+        try_files $uri =404;
+        expires 1y;
+        access_log off;
+        add_header Cache-Control "public";
+    }
+
+    location ~ ^.+\..+$ {
+        try_files $uri =404;
+    }
+
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+}
